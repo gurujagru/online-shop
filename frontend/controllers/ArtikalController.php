@@ -18,6 +18,7 @@ use common\models\User;
 use app\models\Adresa;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
+use app\models\ArtikalNarudzbina;
 /**
  * ArtikalController implements the CRUD actions for Artikal model.
  */
@@ -377,58 +378,52 @@ class ArtikalController extends Controller
         $postojiUser = $user->getUserByUsername($username);
         $postojiAdresa = $adresa->postojiAdresa($adresaPoslePosta);
 
-        /*if(empty($postojiUser) && empty($postojiAdresa)){
-            $user = $userPoslePosta;
-            $adresa = $adresaPoslePosta;
-            $adresa->save();
-            $user->adresa_id = $adresa->id;
-            $user->save();
-        }elseif(empty($postojiUser) && !empty($postojiAdresa)) {
-            $user = $userPoslePosta;
-            $user->adresa_id = $postojiAdresa->id;
-            $user->save();*/
+        //user se prijavio ili je bio prijavljen, a nema adresu da potvrdi porudzbinu
 
-
-
-        //}else
-            //user se prijavio ili je bio prijavljen, a nema adresu da potvrdi porudzbinu
-
-            if(empty($postojiAdresa)) {
-                $userId = $postojiUser->id;
-                $adresaUseraPrePosta = $adresa->getAdresaByUserId($userId);
-                if(!isset($adresaUseraPrePosta)) {
-                    //$adresa->dodajNovuAdresu($adresaPoslePosta);
-                    $adresaPoslePosta->save();
-                    //$idPoslednjeAdrese = $adresa->idPoslednjeAdreseBaza();
-                    //$postojiUser->adresa_id = $idPoslednjeAdrese;
-                    $postojiUser->adresa_id = $adresaPoslePosta->id;
-                    $postojiUser->save();
-                }else {
-                    $adresaPoslePosta->save();
-                }
-
-                //ako user nema adresu, vraca vraca nulu
-
-                //$adresaUseraPrePosta!=null?$adresaUseraPrePosta->delete():null;
-
-            //user i adresa nisu prazni i postoje u bazi
-
-        } else /*if(!empty($postojiUser) && !empty($postojiAdresa))*/{
+        if(empty($postojiAdresa)) {
             $userId = $postojiUser->id;
             $adresaUseraPrePosta = $adresa->getAdresaByUserId($userId);
-            if($adresaUseraPrePosta->id !== $postojiAdresa->id ){
+            if(!isset($adresaUseraPrePosta)) {
+                //$adresa->dodajNovuAdresu($adresaPoslePosta);
+                $adresaPoslePosta->save();
+                //$idPoslednjeAdrese = $adresa->idPoslednjeAdreseBaza();
+                //$postojiUser->adresa_id = $idPoslednjeAdrese;
+                $postojiUser->adresa_id = $adresaPoslePosta->id;
+                $postojiUser->save();
+            }else {
+                $adresaPoslePosta->save();
+            }
+
+        //user i adresa nisu prazni i postoje u bazi
+
+    } else {
+            $userId = $postojiUser->id;
+            $adresaUseraPrePosta = $adresa->getAdresaByUserId($userId);
+            if ($adresaUseraPrePosta->id !== $postojiAdresa->id) {
                 $postojiUser->adresa_id = $postojiAdresa->id;
                 $postojiUser->save();
-                /*$useriAdresePrePosta = $user->getUserByAdresa($adresaUseraPrePosta->id);
-                if(count($useriAdresePrePosta) == 1){
-                    $adresaUseraPrePosta->delete();
-                }*/
             }
-            return null;
         }
-
+        $narudzbina = new Narudzbina();
+        $narudzbina->user_id = Yii::$app->user->id;
+        $narudzbina->save();
+        if ((isset($session['shopping_cart']))) {
+            foreach ($session->get('shopping_cart') as $key => $value) {
+                $obj = new ArtikalNarudzbina();
+                $obj->narudzbina_id = $narudzbina->id;
+                $obj->artikal_id = $value['id'];
+                $obj->save();
+            }
+            unset($session['shopping_cart']);
+            echo '<script>window.alert("Uspesno ste izvrsili porudzbinu!")</script>';
+            echo '<script>window.location.assign("http://online-shop.org/artikal");</script>';
+            //return $this->goHome();
+        } else {
+            echo '<script>window.alert("Ne postoji ni jedan artikal u korpi!")</script>';
+            //$this->redirect('/artikal');
+            echo '<script>window.location.assign("http://online-shop.org/artikal");</script>';
+        }
     }
-
     public function actionPonistiPorudzbinu()
     {
         $model = new Artikal();

@@ -165,6 +165,7 @@ class SiteController extends Controller
             if ($user = $model->signup()) {
                 if (Yii::$app->getUser()->login($user)) {
                     if(isset($session['userPoslePosta'])) {
+                        Yii::$app->session->setFlash('warning','Molimo vas da jos jednom potvrdite vasu adresu!');
                         return $this->redirect('/artikal/poruci');
                     } else return $this->goHome();
                 }
