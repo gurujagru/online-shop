@@ -72,4 +72,12 @@ class Narudzbina extends \yii\db\ActiveRecord
             ->from('narudzbina')
             ->all();
     }
+    public function getPoslednjaNarudzbinaUser($userId)
+    {
+        $poslednjaNarudzbinaId = Narudzbina::find()->max('id');
+
+        return $query = Narudzbina::find()
+            ->innerJoin('user','user.id = narudzbina.user_id')->where('user.id = :userId',[':userId'=>$userId])
+            ->andwhere('narudzbina.id = :poslednjaNarudzbinaId',[':poslednjaNarudzbinaId'=>$poslednjaNarudzbinaId])->one();
+    }
 }

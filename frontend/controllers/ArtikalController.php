@@ -49,12 +49,12 @@ class ArtikalController extends Controller
         $searchModel = new ArtikalSearch();
         $artikli = $searchModel->getAllArtikal();
         $dataProvider = $searchModel->search($artikli, Yii::$app->request->queryParams);
-        if (Yii::$app->request->isAjax){
+        if (Yii::$app->request->isAjax) {
             return $this->renderAjax('index', [
                 'searchModel' => $searchModel,
                 'dataProvider' => $dataProvider,
             ]);
-        }else {
+        } else {
             return $this->render('index', [
                 'searchModel' => $searchModel,
                 'dataProvider' => $dataProvider,
@@ -179,8 +179,8 @@ class ArtikalController extends Controller
     {
 
         $searchModel = new ArtikalSearch();
-            $artikliPoKategoriji = $searchModel->getArtikalByKategorijaNaziv($nazivKategorije);
-            $dataProvider = $searchModel->search($artikliPoKategoriji, Yii::$app->request->queryParams);
+        $artikliPoKategoriji = $searchModel->getArtikalByKategorijaNaziv($nazivKategorije);
+        $dataProvider = $searchModel->search($artikliPoKategoriji, Yii::$app->request->queryParams);
         return $this->render('kategorijePosebno', [
                 'nazivKategorije' => $nazivKategorije,
                 'dataProvider' => $dataProvider,
@@ -188,6 +188,7 @@ class ArtikalController extends Controller
             ]
         );
     }
+
     public function actionKozmetika()
     {
         return $this->getNazivKategorije('kozmetika');
@@ -225,7 +226,7 @@ class ArtikalController extends Controller
                 //$model = $this->findModel($id);
                 $kategorijaArtikal->obrisiKategorijuArtikla($_GET['id'], $_GET['idPostojeceKategorije']);
                 echo '<script>history.go(-1);</script>';
-                Yii::$app->session->setFlash('success','Kategorija uspesno obrisana!');
+                Yii::$app->session->setFlash('success', 'Kategorija uspesno obrisana!');
                 //return $this->redirect(['view', 'id' => $model->id]);
             } else {//throw new ForbiddenHttpException('Artikal mora da pripada barem jednoj kategoriji!');
                 echo '<script>alert("Artikal mora da pripada barem jednoj kategoriji!");
@@ -279,6 +280,7 @@ class ArtikalController extends Controller
         }
         return $this->render('korpa');
     }
+
     public function actionPoruci()
     {
         //pre posta
@@ -287,18 +289,18 @@ class ArtikalController extends Controller
         $session->open();
         $obj1 = new User();
         $obj2 = new Adresa();
-       if (Yii::$app->request->isAjax && $obj1->load(Yii::$app->request->post())) {
+        if (Yii::$app->request->isAjax && $obj1->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($obj1,$obj2);
+            return ActiveForm::validate($obj1, $obj2);
         }
-        if(!Yii::$app->user->isGuest) {
+        if (!Yii::$app->user->isGuest) {
             $idUser = Yii::$app->user->id;
             $modelUser = $obj1->findIdentity($idUser);
             if (!empty($obj2->getAdresaByUserId($idUser))) {
                 $modelAdresa = $obj2->getAdresaByUserId($idUser);
-            } elseif(isset($session['adresaPoslePosta'])) {
+            } elseif (isset($session['adresaPoslePosta'])) {
                 $modelAdresa = $session['adresaPoslePosta'];
-            }else {
+            } else {
                 $modelAdresa = $obj2;
 
             }
@@ -310,7 +312,8 @@ class ArtikalController extends Controller
         //post
 
         if ($modelUser->load(Yii::$app->request->post()) && $modelAdresa->load(Yii::$app->request->post())
-        && $modelUser->validate() && $modelAdresa->validate()) {
+            && $modelUser->validate() && $modelAdresa->validate()
+        ) {
             $request = Yii::$app->request;
             $session = Yii::$app->session;
             $session->open();
@@ -335,30 +338,30 @@ class ArtikalController extends Controller
 
             //vrednosti posle posta u sesiju
 
-            $session->set('userPoslePosta',$modelUser);
-            $session->set('adresaPoslePosta',$modelAdresa);
+            $session->set('userPoslePosta', $modelUser);
+            $session->set('adresaPoslePosta', $modelAdresa);
 
             //
 
-            Yii::$app->session->setFlash('info', '<h2><b>'.ucfirst($modelUser->username).'</b>, uspesno ste napravili narudzbenicu!</h2>');
+            Yii::$app->session->setFlash('info', '<h2><b>' . ucfirst($modelUser->username) . '</b>, uspesno ste napravili narudzbenicu!</h2>');
             return $this->render('narudzbenica', [
                 'artikal' => $artikal,
                 'ukupno' => $session->get('ukupno'),
                 'korisnik' => $korisnik,
                 'noviId' => $noviId
             ]);
-        } elseif(Yii::$app->request->isAjax) {
-                return $this->renderAjax('porudzbina', [
-                    'modelUser' => $modelUser,
-                    'modelAdresa' => $modelAdresa
-                ]);
-            }elseif (isset($session['shopping_cart'])){
-                return $this->render('porudzbina', [
+        } elseif (Yii::$app->request->isAjax) {
+            return $this->renderAjax('porudzbina', [
                 'modelUser' => $modelUser,
                 'modelAdresa' => $modelAdresa
             ]);
-        }else {
-            Yii::$app->session->setFlash('danger','Ne postoji ni jedan artikal u korpi!');
+        } elseif (isset($session['shopping_cart'])) {
+            return $this->render('porudzbina', [
+                'modelUser' => $modelUser,
+                'modelAdresa' => $modelAdresa
+            ]);
+        } else {
+            Yii::$app->session->setFlash('danger', 'Ne postoji ni jedan artikal u korpi!');
             $this->redirect('/artikal');
         }
 
@@ -380,23 +383,20 @@ class ArtikalController extends Controller
 
         //user se prijavio ili je bio prijavljen, a nema adresu da potvrdi porudzbinu
 
-        if(empty($postojiAdresa)) {
+        if (empty($postojiAdresa)) {
             $userId = $postojiUser->id;
             $adresaUseraPrePosta = $adresa->getAdresaByUserId($userId);
-            if(!isset($adresaUseraPrePosta)) {
-                //$adresa->dodajNovuAdresu($adresaPoslePosta);
+            if (!isset($adresaUseraPrePosta)) {
                 $adresaPoslePosta->save();
-                //$idPoslednjeAdrese = $adresa->idPoslednjeAdreseBaza();
-                //$postojiUser->adresa_id = $idPoslednjeAdrese;
                 $postojiUser->adresa_id = $adresaPoslePosta->id;
                 $postojiUser->save();
-            }else {
+            } else {
                 $adresaPoslePosta->save();
             }
 
-        //user i adresa nisu prazni i postoje u bazi
+            //user i adresa nisu prazni i postoje u bazi
 
-    } else {
+        } else {
             $userId = $postojiUser->id;
             $adresaUseraPrePosta = $adresa->getAdresaByUserId($userId);
             if ($adresaUseraPrePosta->id !== $postojiAdresa->id) {
@@ -406,7 +406,8 @@ class ArtikalController extends Controller
         }
         $narudzbina = new Narudzbina();
         $narudzbina->user_id = Yii::$app->user->id;
-        $narudzbina->save();
+        $poslednjaNarudzbina = $narudzbina->save();
+        $session->set('poslednjaPorudzbina',$poslednjaNarudzbina);
         if ((isset($session['shopping_cart']))) {
             foreach ($session->get('shopping_cart') as $key => $value) {
                 $obj = new ArtikalNarudzbina();
@@ -424,14 +425,24 @@ class ArtikalController extends Controller
             echo '<script>window.location.assign("http://online-shop.org/artikal");</script>';
         }
     }
-    public function actionPonistiPorudzbinu()
+
+    public function actionOtkaziPorudzbinu()
     {
-        $model = new Artikal();
+        $request = Yii::$app->request;
+        $artikal = new Artikal();
         $userId = Yii::$app->user->id;
-        $poslednjaPorudzbina = $model->getArtikalByPorudzbina($userId);
-        if(Yii::$app->request->post()){}
-        return $this->render('ponistiPorudzbinu',[
-            'poslednjaPorudzbina'=>$poslednjaPorudzbina
+        $narudznina = new Narudzbina();
+        $poslednjaPorudzbinaModel = $narudznina->getPoslednjaNarudzbinaUser($userId);
+        $poslednjaPorudzbina = $artikal->getArtikalByPorudzbina($userId,$poslednjaPorudzbinaModel->id);
+        if($request->get('action') == 'otkazi-porudzbinu'){
+            $session = Yii::$app->session;
+            $poslednjaPorudzbinaModel->delete();
+            //unset($session['poslednjaPorudzbina']);
+            Yii::$app->session->setFlash('success','<h3>Uspesno ste otkazali porudzbinu!</h3>');
+            return $this->redirect('/artikal');
+        }
+        return $this->render('otkaziPorudzbinu', [
+            'poslednjaPorudzbina' => $poslednjaPorudzbina
         ]);
     }
 }

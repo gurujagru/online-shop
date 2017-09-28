@@ -9,4 +9,4 @@
         </li>
     </ul>
 </div>
-    <a href="/artikal/ponisti-porudzbinu">Ponisti porudzbinu</a>
+    <a href='/artikal/otkazi-porudzbinu?action=otkazi-porudzbinu' class="btn btn-danger">Otkazi porudzbinu</a>

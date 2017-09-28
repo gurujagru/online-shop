@@ -3,6 +3,7 @@
 namespace frontend\models;
 
 use app\models\ArtikalNarudzbina;
+use app\models\Narudzbina;
 use Yii;
 use yii\db\Query;
 
@@ -91,14 +92,10 @@ class Artikal extends \yii\db\ActiveRecord
             ->innerJoin('kategorija', 'id_kategorija = kategorija.id')->andWhere(['naziv' => $nazivKategorije]);
     }
 
-    public function  getArtikalByPorudzbina($userId)
+    public function  getArtikalByPorudzbina($userId,$poslednjaNarudzbina)
     {
-        $query1 = new Query();
-        $poslednjaNarudzbina = $query1->select('narudzbina.id')->from('narudzbina')
-            ->innerJoin('user','user.id = narudzbina.user_id')->where('user.id = :userId',[':userId'=>$userId])
-            ->max("narudzbina.id");
-        $query2 = new Query();
-        return $query2->select('n.id,u.username,n.vreme_kreiranja,a.naslov')
+        $query = new Query();
+        return $query->select('n.id,u.username,n.vreme_kreiranja,a.naslov')
             ->from('user u')
             ->innerJoin('narudzbina n', 'n.user_id = u.id')
             ->innerJoin('artikal_narudzbina an', 'an.narudzbina_id = n.id')
