@@ -334,7 +334,7 @@ class ArtikalController extends Controller
             foreach ($narudzbinaId as $key => $value) {
                 $nizId[] = $value['id'];
             }
-            $noviId = max($nizId) + 1;
+            $noviId = $narudzbinaId == null?1:max($nizId) + 1;
 
             //vrednosti posle posta u sesiju
 

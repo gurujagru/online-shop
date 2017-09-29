@@ -75,9 +75,8 @@ class KategorijaArtikal extends \yii\db\ActiveRecord
             $this->id_kategorija = $nazivKategorije;
             $this->id_aritkal = $idArtikla;
             $this->save();
-            Yii::$app->session->setFlash('success','Kategorija artikla je dodata!');
         } else {
-            Yii::$app->session->setFlash('danger','Kategorija artikla vec postoji!');
+                Yii::$app->session->setFlash('danger', 'Kategorija artikla vec postoji!');
         }
     }
     public function obrisiKategorijuArtikla($idArtikal,$idKategorija)
