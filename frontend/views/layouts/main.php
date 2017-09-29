@@ -56,7 +56,7 @@ AppAsset::register($this);
         $menuItems[] = ['label' => 'Korpa', 'url' => '/artikal/korpa?action=porudzbina&id='.$_SESSION['shopping_cart'][$index]['id']];
         }
     if (isset($session['poslednjaPorudzbina'])) {
-        $menuItems[] = ['label' => 'Otkazi porudzbinu', 'url' =>'/artikal/otkazi-porudzbinu'];
+        $menuItems[] = ['label' => 'Otkazi porudzbinu', 'url' =>'/artikal/otkazi-porudzbinu','class'=>'otkazi-porudzbinu'];
         }
     if (Yii::$app->user->isGuest) {
         $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];

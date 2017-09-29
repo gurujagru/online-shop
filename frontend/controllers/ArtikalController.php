@@ -381,27 +381,37 @@ class ArtikalController extends Controller
         $postojiUser = $user->getUserByUsername($username);
         $postojiAdresa = $adresa->postojiAdresa($adresaPoslePosta);
 
-        //user se prijavio ili je bio prijavljen, a nema adresu da potvrdi porudzbinu
+        //adresa je prazna, nema je u bazi
 
         if (empty($postojiAdresa)) {
             $userId = $postojiUser->id;
             $adresaUseraPrePosta = $adresa->getAdresaByUserId($userId);
-            if (!isset($adresaUseraPrePosta)) {
-                $adresaPoslePosta->save();
-                $postojiUser->adresa_id = $adresaPoslePosta->id;
-                $postojiUser->save();
+            if (isset($adresaUseraPrePosta)) {
+                $postojiUsernaAdresi = $user->getUserByAdresa($adresaUseraPrePosta->id);
+                if(count($postojiUsernaAdresi)!=1) {
+                    $adresa->dodajNovuAdresu($adresaPoslePosta);
+                    $adresaId = $adresa->idPoslednjeAdreseBaza();
+                    $postojiUser->adresa_id = $adresaId;
+                    $postojiUser->save();
+                } else {
+                    $adresaPoslePosta->save();
+                }
             } else {
                 $adresaPoslePosta->save();
             }
 
-            //user i adresa nisu prazni i postoje u bazi
+            //adresa nije prazna i postoji u bazi
 
         } else {
             $userId = $postojiUser->id;
             $adresaUseraPrePosta = $adresa->getAdresaByUserId($userId);
             if ($adresaUseraPrePosta->id !== $postojiAdresa->id) {
+                $postojiUsernaAdresi = $user->getUserByAdresa($adresaUseraPrePosta->id);
                 $postojiUser->adresa_id = $postojiAdresa->id;
                 $postojiUser->save();
+                if(count($postojiUsernaAdresi) == 1) {
+                    $adresaUseraPrePosta->delete();
+                }
             }
         }
         $narudzbina = new Narudzbina();
@@ -437,7 +447,7 @@ class ArtikalController extends Controller
         if($request->get('action') == 'otkazi-porudzbinu'){
             $session = Yii::$app->session;
             $poslednjaPorudzbinaModel->delete();
-            //unset($session['poslednjaPorudzbina']);
+            unset($session['poslednjaPorudzbina']);
             Yii::$app->session->setFlash('success','<h3>Uspesno ste otkazali porudzbinu!</h3>');
             return $this->redirect('/artikal');
         }
